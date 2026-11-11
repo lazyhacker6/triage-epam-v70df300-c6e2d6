@@ -1,0 +1,7 @@
+name: probe2
+on: workflow_dispatch
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: org.example/probe2@v1
