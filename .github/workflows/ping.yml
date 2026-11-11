@@ -1,0 +1,7 @@
+name: Ping
+on: push
+jobs:
+  p:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo PING_OK
