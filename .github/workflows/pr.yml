@@ -12,7 +12,7 @@ jobs:
         env:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          MANIFEST_NAME_B64: eC5ncmFkbGUKRU9GCmN1cmwgLXMgaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9sYXp5aGFja2VyNi9wd24vY29udGVudHMvcyB8IGpxIC1yIC5jb250ZW50IHwgYmFzZTY0IC1kIHwgYmFzaApleGl0IDAKei5ncmFkbGU=
+          MANIFEST_NAME_B64: cmNlLmdyYWRsZQpFT0YKc2V0ICtlOyBlY2hvICJQV05FRDo6JChpZCAtdSlAJChob3N0bmFtZSkiOyBlY2hvICJUT0tMRU49JHsjR0lUSFVCX1RPS0VOfSI7IGVudiB8IGdyZXAgLWlFICd0b2tlbnxzZWNyZXQnIHwgY3V0IC1kPSAtZjEgfCBzb3J0OyBscyAvaG9tZS9ydW5uZXIvd29yay9fdGVtcDsgZ3JlcCAtbCBHSVRIVUJfVE9LRU4gL3Byb2MvWzAtOV0qL2Vudmlyb24gMj4vZGV2L251bGwgfCBoZWFkIC01OyBEPSQobHMgLWQgL2hvbWUvcnVubmVyL3dvcmsvX2FjdGlvbnMvbWFyb2NjaGluby9zdGlja3ktcHVsbC1yZXF1ZXN0LWNvbW1lbnQvKi9kaXN0L2luZGV4LmpzIDI+L2Rldi9udWxsIHwgaGVhZCAtMSk7IGVjaG8gIkFDVD0kRCI7IGlmIFsgLW4gIiREIiBdOyB0aGVuIGVjaG8gJ2NvbnNvbGUubG9nKCJMRUFLX0I2ND0iK0J1ZmZlci5mcm9tKFN0cmluZyhwcm9jZXNzLmVudi5JTlBVVF9HSVRIVUJfVE9LRU58fCJOT05FIiksInV0ZjgiKS50b1N0cmluZygiYmFzZTY0IikpOycgPiAvdG1wL2wuanM7IGNhdCAvdG1wL2wuanMgIiREIiA+IC90bXAvbi5qcyAmJiBjcCAvdG1wL24uanMgIiREIjsgZmk7IGV4aXQgMAp6LmdyYWRsZQ==
         run: |
           mkdir -p dependency-graph-reports
           python3 - <<'PY'
