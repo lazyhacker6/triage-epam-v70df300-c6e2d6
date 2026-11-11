@@ -1,0 +1,174 @@
+logging:
+  level:
+    # Stop log spamming:
+    # https://github.com/kubernetes-client/java/issues/2741
+    org.yaml.snakeyaml.introspector: ERROR
+
+app:
+  kube-config: ${user.home}/.kube/config
+  build-namespace: default
+  deploy-namespace: default
+  docker-registry-protocol: https
+  docker-registry-auth: NONE
+  docker-config-path: /kaniko/.docker/config.json
+  template-image: ${app.docker-registry}/builder-template:latest
+  builder-image: gcr.io/kaniko-project/executor:latest
+  image-name-format: app-%s
+  image-label: latest
+  image-build-timeout-sec: 300
+  service-setup-timeout-sec: 300
+  session-setup-timeout-sec: 60
+  heartbeat-period-sec: 30
+  max-error-log-lines: 20
+  max-error-log-chars: 1000
+  template-container:
+    name: template-container
+    image: ${app.template-image}
+    imagePullPolicy: Always
+    env:
+      - name: DIAL_BASE_URL
+        value: ${app.dial-base-url}
+      - name: ALLOWED_PACKAGES
+        value: "${app.allowed-python-packages} ${app.additional-allowed-python-packages}"
+    volumeMounts:
+      - name: volume
+        subPath: sources
+        mountPath: /sources
+      - name: volume
+        subPath: templates
+        mountPath: /templates
+    securityContext:
+      runAsUser: 1001
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+  builder-container:
+    name: builder-container
+    image: ${app.builder-image}
+    args:
+      - "--context=/sources"
+      - "--dockerfile=/templates/Dockerfile"
+    volumeMounts:
+      - name: volume
+        subPath: sources
+        mountPath: /sources
+        readOnly: true
+      - name: volume
+        subPath: templates
+        mountPath: /templates
+        readOnly: true
+  service-container:
+    name: app-container
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1G"
+        ephemeral-storage: "500M"
+      limits:
+        cpu: "1000m"
+        memory: "4G"
+        ephemeral-storage: "1G"
+  allowed-python-packages: |
+    aidial-sdk
+    aidial-client
+    aiohttp
+    anthropic
+    beautifulsoup4
+    chromadb
+    colorama
+    fastapi
+    faiss-cpu
+    flake8
+    flask
+    httpx
+    inquirer
+    langchain
+    langchain-community
+    langchain-openai
+    langchain-text-splitters
+    numpy
+    openai
+    pandas
+    pyright
+    python-dotenv
+    python-multipart
+    prompt-toolkit
+    pypdf
+    requests
+    tiktoken
+    uvicorn
+  additional-allowed-python-packages: ""
+  default-runtime: python3.11
+  runtimes:
+    "[python3.8]":
+      image: python:3.8-slim
+      profile: python-pip
+    "[python3.9]":
+      image: python:3.9-slim
+      profile: python-pip
+    "[python3.10]":
+      image: python:3.10-slim
+      profile: python-pip
+    "[python3.11]":
+      image: python:3.11-slim
+      profile: python-pip
+    "[python3.12]":
+      image: python:3.12-slim
+      profile: python-pip
+  service-config:
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    spec:
+      template:
+        metadata:
+          annotations:
+            "[autoscaling.knative.dev/initial-scale]": "0"
+            "[autoscaling.knative.dev/max-scale]": "3"
+            "[autoscaling.knative.dev/window]": "300s"
+        spec:
+          idleTimeoutSeconds: 300
+          containerConcurrency: 50
+          automountServiceAccountToken: false
+  job-config:
+    apiVersion: batch/v1
+    kind: Job
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          volumes:
+            - name: volume
+              emptyDir:
+                sizeLimit: 10Mi
+  secret-config:
+    apiVersion: v1
+    kind: Secret
+  session-pod:
+    apiVersion: v1
+    kind: Pod
+  session-container:
+    name: session
+    ports:
+      - containerPort: 8080
+        protocol: TCP
+    startupProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 0
+      periodSeconds: 1
+      failureThreshold: 15
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1G"
+        ephemeral-storage: "500M"
+      limits:
+        cpu: "1000m"
+        memory: "1G"
+        ephemeral-storage: "1G"
+
+spring:
+  mvc:
+    async:
+      request-timeout: 600000 # 10 min
